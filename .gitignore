@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.next/
+coverage/
+.turbo/
+
+.env
+.env.*
+!.env.example
+
+npm-debug.log*
+Dockerfile.local
+
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+work/
+outputs/
+
+/Documento Tecnico - AuthForge.md
+/Plano de Acao - AuthForge.md
