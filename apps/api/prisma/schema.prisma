@@ -5,3 +5,23 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum UserStatus {
+  active
+  pending_email_verification
+  blocked
+  disabled
+}
+
+model User {
+  id              String     @id @default(uuid())
+  name            String
+  email           String     @unique
+  emailVerifiedAt DateTime?
+  passwordHash    String
+  status          UserStatus @default(pending_email_verification)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@map("users")
+}
