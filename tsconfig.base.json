@@ -12,9 +12,8 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "baseUrl": ".",
     "paths": {
-      "@authforge/shared": ["packages/shared/src/index.ts"]
+      "@authforge/shared": ["./packages/shared/src/index.ts"]
     }
   }
 }
