@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Redis } from 'ioredis';
-import nodemailer from 'nodemailer';
-import pg from 'pg';
 
-import { env } from '../env.js';
+import { PrismaService } from '../database/prisma.service.js';
+import { MailService } from '../mail/mail.service.js';
+import { RedisService } from '../redis/redis.service.js';
 
 type DependencyStatus = 'up' | 'down';
 
@@ -24,6 +23,12 @@ export type HealthResponse = {
 
 @Injectable()
 export class HealthService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
+    private readonly mail: MailService,
+  ) {}
+
   async check(): Promise<HealthResponse> {
     const [postgres, redis, mailpit] = await Promise.all([
       this.checkPostgres(),
@@ -47,52 +52,29 @@ export class HealthService {
   }
 
   private async checkPostgres(): Promise<DependencyHealth> {
-    const pool = new pg.Pool({
-      connectionString: env.DATABASE_URL,
-    });
-
     try {
-      await pool.query('select 1');
+      await this.prisma.ping();
       return { status: 'up' };
     } catch (error) {
       return this.down(error);
-    } finally {
-      await pool.end();
     }
   }
 
   private async checkRedis(): Promise<DependencyHealth> {
-    const redis = new Redis(env.REDIS_URL, {
-      lazyConnect: true,
-      maxRetriesPerRequest: 1,
-    });
-    redis.on('error', () => undefined);
-
     try {
-      await redis.connect();
-      await redis.ping();
+      await this.redis.ping();
       return { status: 'up' };
     } catch (error) {
       return this.down(error);
-    } finally {
-      redis.disconnect();
     }
   }
 
   private async checkMailpit(): Promise<DependencyHealth> {
-    const transporter = nodemailer.createTransport({
-      host: env.MAIL_HOST,
-      port: env.MAIL_PORT,
-      secure: false,
-    });
-
     try {
-      await transporter.verify();
+      await this.mail.verifyConnection();
       return { status: 'up' };
     } catch (error) {
       return this.down(error);
-    } finally {
-      transporter.close();
     }
   }
 

@@ -51,6 +51,12 @@ API healthcheck:
 curl http://localhost:3001/health
 ```
 
+OpenAPI docs:
+
+```bash
+http://localhost:3001/docs
+```
+
 Web app:
 
 ```bash
